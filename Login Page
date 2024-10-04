@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login / Registration Form</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .form-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            transform: translateY(20px);
+            opacity: 0;
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        h2 {
+            text-align: center;
+            color: #4a00e0;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            font-size: 2rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #555;
+            font-weight: 300;
+            transition: color 0.3s ease;
+        }
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        input:focus {
+            outline: none;
+            border-color: #4a00e0;
+            box-shadow: 0 0 0 3px rgba(74, 0, 224, 0.1);
+            background-color: white;
+        }
+        input:focus + label {
+            color: #4a00e0;
+        }
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .error {
+            color: #e74c3c;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .error.show {
+            opacity: 1;
+        }
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            text-align: center;
+            font-weight: 400;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+        .alert.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .alert-success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .alert-error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Register</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <input type="email" id="email" name="email" required>
+                <label for="email">Email</label>
+                <div class="error" id="emailError"></div>
+            </div>
+            <div class="form-group">
+                <input type="text" id="username" name="username" required>
+                <label for="username">Username</label>
+                <div class="error" id="usernameError"></div>
+            </div>
+            <div class="form-group">
+                <input type="password" id="password" name="password" required>
+                <label for="password">Password</label>
+                <div class="error" id="passwordError"></div>
+            </div>
+            <button type="submit">Sign In</button>
+        </form>
+        <div id="alertBox" class="alert"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('loginForm');
+            const alertBox = document.getElementById('alertBox');
+
+            // Add floating label effect
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('focus', () => {
+                    input.parentElement.querySelector('label').style.transform = 'translateY(-25px)';
+                    input.parentElement.querySelector('label').style.fontSize = '0.75rem';
+                });
+                input.addEventListener('blur', () => {
+                    if (!input.value) {
+                        input.parentElement.querySelector('label').style.transform = 'translateY(0)';
+                        input.parentElement.querySelector('label').style.fontSize = '1rem';
+                    }
+                });
+            });
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (validateForm()) {
+                    // Simulate form submission
+                    setTimeout(() => {
+                        showAlert('success', 'Welcome back! You\'ve successfully signed in.');
+                        form.reset();
+                    }, 1000);
+                } else {
+                    showAlert('error', 'Oops! Please correct the errors in the form.');
+                }
+            });
+
+            function validateForm() {
+                let isValid = true;
+                
+                // Email validation
+                const email = document.getElementById('email');
+                const emailError = document.getElementById('emailError');
+                if (!email.value) {
+                    showError(emailError, 'Email is required');
+                    isValid = false;
+                } else if (!/\S+@\S+\.\S+/.test(email.value)) {
+                    showError(emailError, 'Please enter a valid email');
+                    isValid = false;
+                } else {
+                    hideError(emailError);
+                }
+
+                // Username validation
+                const username = document.getElementById('username');
+                const usernameError = document.getElementById('usernameError');
+                if (!username.value) {
+                    showError(usernameError, 'Username is required');
+                    isValid = false;
+                } else {
+                    hideError(usernameError);
+                }
+
+                // Password validation
+                const password = document.getElementById('password');
+                const passwordError = document.getElementById('passwordError');
+                if (!password.value) {
+                    showError(passwordError, 'Password is required');
+                    isValid = false;
+                } else if (password.value.length < 8) {
+                    showError(passwordError, 'Password must be at least 8 characters');
+                    isValid = false;
+                } else {
+                    hideError(passwordError);
+                }
+
+                return isValid;
+            }
+
+            function showError(element, message) {
+                element.textContent = message;
+                element.classList.add('show');
+            }
+
+            function hideError(element) {
+                element.textContent = '';
+                element.classList.remove('show');
+            }
+
+            function showAlert(type, message) {
+                alertBox.className = `alert alert-${type}`;
+                alertBox.textContent = message;
+                alertBox.classList.add('show');
+
+                setTimeout(() => {
+                    alertBox.classList.remove('show');
+                }, 5000);
+            }
+        });
+    </script>
+</body>
+</html>
