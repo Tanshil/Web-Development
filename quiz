@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> ONLINE Quiz</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;600&display=swap');
+        
+        body {
+            font-family: 'Roboto Mono', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+        }
+        .quiz-container {
+            background-color: #2d2d2d;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 90%;
+        }
+        h1 {
+            text-align: center;
+            color: #569cd6;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        .question {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            line-height: 1.5;
+            font-weight: 600;
+            color: #ce9178;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        button {
+            padding: 12px;
+            font-size: 0.9em;
+            background-color: #3c3c3c;
+            color: #d4d4d4;
+            border: 1px solid #569cd6;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Roboto Mono', monospace;
+        }
+        button:hover {
+            background-color: #569cd6;
+            color: #1e1e1e;
+        }
+        #result {
+            text-align: center;
+            font-size: 1.1em;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            background-color: #3c3c3c;
+            border: 1px solid #569cd6;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #3c3c3c;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .progress {
+            height: 100%;
+            background-color: #569cd6;
+            transition: width 0.3s ease;
+        }
+        code {
+            background-color: #1e1e1e;
+            padding: 2px 4px;
+            border-radius: 3px;
+            color: #9cdcfe;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1>Quiz</h1>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <div id="quiz">
+            <p class="question" id="question"></p>
+            <div class="options" id="options"></div>
+        </div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                question: "What does 'CSS' stand for in web development?",
+                options: ["Computer Style Sheets", "Creative Style Sheets", "Cascading Style Sheets", "Colorful Style Sheets"],
+                correct: 3
+            },
+            {
+                question: "Which of the following is NOT a valid data type in Python?",
+                options: ["int", "float", "char", "bool"],
+                correct: 2
+            },
+            {
+                question: "What is the time complexity of binary search?",
+                options: ["O(n)", "O(log n)", "O(n log n)", "O(n^2)"],
+                correct: 2
+            },
+            {
+                question: "In Object-Oriented Programming, what is inheritance ?",
+                options: [
+                    "The process of creating a new class from an existing class",
+                    "The ability of an object to take on many forms",
+                    "The bundling of data and the methods that operate on that data",
+                    "The process of converting data into a code to prevent unauthorized access"
+                ],
+                correct: 2
+            },
+            {
+                question: "What does the following code snippet do?\n\ncode>\nresult = [x for x in range(10) if x % 2 == 0]\n</code>",
+                options: [
+                    "Creates a list of odd numbers from 0 to 9",
+                    "Creates a list of even numbers from 0 to 9",
+                    "Creates a list of all numbers from 0 to 9",
+                    "Raises a syntax error"
+                ],
+                correct: 1
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+
+        const quizElement = document.getElementById("quiz");
+        const questionElement = document.getElementById("question");
+        const optionsElement = document.getElementById("options");
+        const resultElement = document.getElementById("result");
+        const progressElement = document.getElementById("progress");
+
+        function loadQuestion() {
+            const question = quizData[currentQuestion];
+            questionElement.innerHTML = question.question;
+
+            optionsElement.innerHTML = "";
+            for (let i = 0; i < question.options.length; i++) {
+                const button = document.createElement("button");
+                button.textContent = question.options[i];
+                button.addEventListener("click", () => selectAnswer(i));
+                optionsElement.appendChild(button);
+            }
+
+            updateProgress();
+        }
+
+        function selectAnswer(selectedIndex) {
+            const question = quizData[currentQuestion];
+            if (selectedIndex === question.correct) {
+                score++;
+            }
+
+            currentQuestion++;
+
+            if (currentQuestion < quizData.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            quizElement.style.display = "none";
+            const percentage = (score / quizData.length) * 100;
+            let feedback;
+
+            if (percentage >= 80) {
+                feedback = "Excellent job! You're a CSE pro!";
+            } else if (percentage >= 60) {
+                feedback = "Good effort! Keep studying those algorithms!";
+            } else {
+                feedback = "Keep coding! Practice makes perfect!";
+            }
+
+            resultElement.innerHTML = `
+                <h2>Quiz Completed!</h2>
+                <p>Your score: ${score} out of ${quizData.length}</p>
+                <p>${feedback}</p>
+            `;
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / quizData.length) * 100;
+            progressElement.style.width = `${progress}%`;
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>
